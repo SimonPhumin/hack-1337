@@ -1,4 +1,4 @@
-"""Name, metric and sanity fixes applied after patching and ligaturizing."""
+"""Name, metric and sanity fixes applied after patching and adding the ligatures."""
 from fontTools.ttLib import TTFont
 
 from config import FAMILY, LINE_METRICS, UPSTREAMS, VERSION
@@ -7,7 +7,7 @@ REPO_URL = "https://github.com/SimonPhumin/hack-1337"
 
 COPYRIGHT = (
     "Copyright (c) 2018 Source Foundry Authors / Copyright (c) 2003 by Bitstream, Inc. All Rights Reserved.\n"
-    "Programming ligatures from JetBrains Mono, Copyright 2020 The JetBrains Mono Project Authors.\n"
+    "Programming ligatures drawn from Hack's own strokes for Hack 1337.\n"
     "Nerd Fonts glyphs by Ryan L McIntyre and the Nerd Fonts contributors.\n"
     "Hack 1337 by Simon Phumin Schweikert."
 )
@@ -16,8 +16,6 @@ LICENSE = (
     "Hack is Copyright 2018 Source Foundry Authors and licensed under the MIT License; "
     "Bitstream Vera and DejaVu portions are under their respective licenses "
     "(https://github.com/source-foundry/Hack/blob/master/LICENSE.md).\n\n"
-    "The programming ligature glyphs are taken from JetBrains Mono and licensed under the "
-    "SIL Open Font License, Version 1.1 (https://openfontlicense.org).\n\n"
     "Nerd Fonts glyphs are licensed by their respective authors "
     "(https://github.com/ryanoasis/nerd-fonts/blob/master/LICENSE)."
 )
@@ -26,7 +24,7 @@ LICENSE = (
 def finalize(font: TTFont, style: str, win_metrics: tuple[int, int]) -> None:
     ps_family = FAMILY.replace(" ", "")
     ps_name = f"{ps_family}-{style.replace(' ', '')}"
-    versions = ", ".join(f"{k} {v['version']}" for k, v in UPSTREAMS.items())
+    versions = ", ".join(f"{v['name']} {v['version']}" for v in UPSTREAMS.values() if not v.get("test_only"))
 
     name = font["name"]
     name.names = [r for r in name.names if r.platformID == 3 and r.nameID not in (16, 17, 21, 22, 25)]

@@ -1,7 +1,7 @@
 [project]
 name = "hack-1337"
 version = "2.0.0"
-description = "Build scripts for Hack 1337: Hack + JetBrains Mono ligatures + Nerd Fonts"
+description = "Build scripts for Hack 1337: Hack + native ligatures + Nerd Fonts"
 license = "MIT"
 requires-python = ">=3.10"
 dependencies = [

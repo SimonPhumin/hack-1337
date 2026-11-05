@@ -1,0 +1,90 @@
+# Code samples for `make check`: ligatures in each line must form exactly where they form in
+# JetBrains Mono (the reference), except for the lines listed in tests/accepted-differences.txt.
+# One sample per line; lines starting with '# ' are comments.
+
+## Python
+if a <= b and c >= d and e != f and g == h:
+result = [x ** 2 for x in range(10) if x % 2 == 0]
+def f(x: int) -> int: return x // 2
+pattern = re.compile(r'(?<=\d)(?=(\d{3})+$)')
+m = re.match(r'(?:abc|def)+(?!=)', s)
+print(f"{value!r:>10} {{literal}} {{{nested}}}")
+files = glob.glob('/**/*.py', recursive=True) + glob.glob('*/*/*.txt')
+x := y if y is not None else ...
+assert result is not ... and a != b
+lambda *args, **kwargs: None
+## JavaScript / TypeScript
+const add = (a, b) => a + b;
+if (x === y && y !== z || !flag) { i++; j--; }
+const value = obj?.prop ?? fallback;
+let items: Array<Map<string, number>> = [];
+export const App = () => <div className="app"><Header /></div>;
+/** JSDoc comment */
+/* block comment */ // line comment
+for (let i = 0; i <= n; i += 1) {}
+const re = /[=>]+|[\w\-|]+/g;
+x >>>= 2; y <<= 1; z >>= 3; a ||= b; c &&= d; e ??= f;
+## Rust
+fn main() -> Result<(), Box<dyn Error>> { Ok(()) }
+match x { Some(v) => v, None => 0 }
+let r = 1..=10; let s = 0..n; let t = &v[..];
+impl<'a> Foo<'a> where T: Clone + 'static {}
+#[derive(Debug)] #![allow(dead_code)]
+println!("{:?}", vec![1, 2, 3]);
+## Go
+ch <- value; v := <-ch
+if err != nil { return err }
+x := map[string]int{"a": 1}
+## C / C++
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+std::cout << "hello" << std::endl;
+static_assert(std::is_same<T, const char*>::value, "");
+for (int i = 0; i < n; ++i) { p->next = q; }
+x <<= 1; y >>= 2; z != w;
+/* comment */ int a = b / c * d;
+## Haskell / Elm / F#
+main = putStrLn "hi" >>= \_ -> return ()
+f <$> x <*> y <|> z
+xs >>= f >=> g <=< h
+data T = A | B deriving (Show, Eq)
+x |> f >> g << h <| y
+a :: Int -> Int
+(<>) = mappend; x /= y; y == z
+## Ruby
+h = { :a => 1, "b" => 2 }
+puts "#{name} is #{age}"
+x <=> y; a ||= b; c &&= d
+1 + 1 #=> 2
+ops = [:<=, :>=, :<, :>, :==, :!=, :<=>]
+## Elixir / Erlang
+value |> String.trim() |> String.upcase()
+fn x -> x * 2 end
+<<a::8, b::binary>> = data
+case x do {:ok, v} -> v end
+## PHP / Blade / templates
+{{ $user->name }} {!! $html !!} {{-- comment --}}
+<?php echo $a <=> $b; ?>
+{% if x == y %}{{ value|upper }}{% endif %}
+## HTML / XML
+<!-- comment --> <div class="a">text</div>
+<br/> <img src="a.png" />
+<![CDATA[</data>]]>
+<li><kbd>C</kbd>-<kbd>x</kbd></li>
+<span class="o">=</span><span class="p">-&gt;</span>
+## Shell
+if [[ $a == $b ]] && [ -f file ]; then echo ok; fi
+ls ./*/*/ | grep -v '^#' >> out.txt 2>&1
+echo "${HOME:-/tmp}" "${A:-${B:-}}"
+## Markdown / prose
+--- title: Notes ---
+=== Heading ===
+- item -> next
+Use <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy.
+## Misc
+TZ='<-04>4<-03>,M9.1.6/24'
+www.example.com https://example.com/a//b
+a /\ b \/ c . /\ .
+:-) ;-) :|-|)
+#!/usr/bin/env bash
+x ~= y; a ~> b; c <~ d; e ~~> f
+!! !!! ?? ??? :: ::: ;; ;;;

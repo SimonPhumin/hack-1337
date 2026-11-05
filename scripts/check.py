@@ -2,8 +2,10 @@
 
 For every style:
   - monospace advance widths, Hack 1337 line metrics, family name
-  - every ligature of the matching JetBrains Mono weight is reproduced, and ligature behaviour
-    (including the "don't ligate here" rules) matches JetBrains Mono on random input
+  - every ligature JetBrains Mono has is formed too, and on the real-world code in
+    tests/code-samples.txt ligatures form exactly where JetBrains Mono forms them (except for
+    tests/accepted-differences.txt). JetBrains Mono is only a test reference; nothing from it is
+    built into the fonts.
   - ss01 switches comparison ligatures off
   - Nerd Fonts coverage, and code points gained/lost compared to the committed fonts (git HEAD)
   - the .otf shapes exactly like the .ttf
@@ -70,6 +72,32 @@ def ligature_set(shaper: Shaper) -> dict[str, str]:
     return found
 
 
+def _ligs(shaper, text):
+    """[(index of last char, ligature glyph)] for every ligature formed in `text`."""
+    return [(i, g) for i, g in enumerate(shaper(text)) if g.endswith(".liga")]
+
+
+def samples() -> list[str]:
+    lines = (ROOT / "tests" / "code-samples.txt").read_text().splitlines()
+    return [l for l in lines if l and not l.startswith(("# ", "## "))]
+
+
+def accepted() -> set[str]:
+    lines = (ROOT / "tests" / "accepted-differences.txt").read_text().splitlines()
+    return {l.split("\t")[0] for l in lines if l and not l.startswith("# ")}
+
+
+def sample_diffs(jbm, new):
+    """Samples where the two fonts form different ligatures (and the difference isn't accepted)."""
+    ok = accepted()
+    out = []
+    for line in samples():
+        a, b = set(_ligs(jbm, line)), set(_ligs(new, line))
+        if a != b and line not in ok:
+            out.append((line, sorted(g for _, g in b - a), sorted(g for _, g in a - b)))
+    return out
+
+
 def committed(path: str, rev: str) -> bytes | None:
     try:
         return subprocess.run(["git", "show", f"{rev}:{path}"], cwd=ROOT, capture_output=True, check=True).stdout
@@ -113,17 +141,10 @@ def check_style(style: str, rev: str) -> list[str]:
         if new.ligature(seq) is None and not new(seq)[-1].endswith(".liga"):
             errors.append(f"native ligature {seq!r} does not apply")
 
-    # Spacers differ (JetBrains Mono: SPC, native-only ligatures: LIG); compare ligature positions.
-    lig = lambda seq: [g if g == "SPC" or g.endswith(".liga") else "·" for g in seq]
-    rnd = random.Random(1337)
-    alphabet = PUNCT + "0123456789abxyzAB "
-    for _ in range(20000):
-        s = "".join(rnd.choice(alphabet) for _ in range(rnd.randint(2, 8)))
-        if any(seq in s for seq in native_only):
-            continue
-        if lig(jbm(s)) != lig(new(s)):
-            errors.append(f"ligature behaviour differs from JetBrains Mono for {s!r}")
-            break
+    # JetBrains Mono is the reference for *when* ligatures form, on real-world code samples.
+    for line, ours, theirs in sample_diffs(jbm, new):
+        errors.append(f"ligatures differ from JetBrains Mono in {line!r}: ours {ours}, JetBrains Mono {theirs} "
+                      "(fix the rules or add the line to tests/accepted-differences.txt)")
 
     for s in ("<=", ">=", "==", "!=", "===", "!=="):
         if any(g.endswith(".liga") for g in new(s, {"ss01": True})):
@@ -144,8 +165,8 @@ def check_style(style: str, rev: str) -> list[str]:
     if native_count != len(liga_glyphs):
         errors.append(f"ligature glyphs still from JetBrains Mono: {sorted(set(liga_glyphs) - native_names)}")
     report = [f"## {name}", f"- glyphs: {len(tt.getGlyphOrder())}, code points: {len(new.cmap)}",
-              f"- ligatures: {len(expected)} from JetBrains Mono rules + {len(native_only)} native-only "
-              f"({' '.join(native_only)})",
+              f"- ligatures: {len(expected) + len(native_only)} (JetBrains Mono's {len(expected)} + "
+              f"{' '.join(native_only)}); behaviour matches JetBrains Mono on {len(samples())} code samples",
               f"- native ligature glyphs: {native_count}/{len(liga_glyphs)}"]
     old_data = committed(f"ttf/{name}.ttf", rev)
     if old_data:

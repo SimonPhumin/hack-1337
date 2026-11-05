@@ -8,7 +8,7 @@ My personal edit of the legendary [Hack](https://github.com/source-foundry/Hack)
 | | |
 | --- | --- |
 | Base font | Hack 3.003 |
-| Ligatures | 150, from [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) 2.304 ([full list](docs/ligatures.md)) |
+| Ligatures | 152, drawn from Hack's own strokes ([full list](docs/ligatures.md)) |
 | Icons | [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts) 3.5.1, complete set, single-width ("Mono") |
 | Styles | Regular, Italic, Bold, Bold Italic |
 | Formats | `ttf/`, `otf/`, `woff/`, `woff2/` |
@@ -47,8 +47,8 @@ The fonts are built from the upstream releases with one command (`make fonts`). 
 ## License
 
 - **Build scripts** (`scripts/`, `src/`, `Makefile`): [MIT](LICENSE).
-- **Fonts**: Hack is MIT (with the Bitstream Vera and DejaVu notices from
-  [Hack's license](https://github.com/source-foundry/Hack/blob/master/LICENSE.md)). The ligature
-  glyphs come from JetBrains Mono, so the font files are also covered by the
-  [SIL Open Font License 1.1](OFL.txt). Nerd Fonts icons keep their
-  [respective licenses](https://github.com/ryanoasis/nerd-fonts/blob/master/LICENSE).
+- **Fonts**: [Hack's license](https://github.com/source-foundry/Hack/blob/master/LICENSE.md)
+  (MIT, plus the Bitstream Vera License for the outlines Hack inherits). The ligatures are drawn
+  from Hack's own strokes, so they add no other license. The Nerd Fonts icons keep their
+  [respective licenses](https://github.com/ryanoasis/nerd-fonts/blob/master/LICENSE); some of
+  them, such as Font Awesome and Weather Icons, are SIL OFL 1.1.
