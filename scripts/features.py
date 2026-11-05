@@ -1,5 +1,5 @@
 """Native Hack 1337 features: build the alias glyphs from src/features/glyphs.json and compile
-src/features/native.fea together with the generated JetBrains Mono ligature code."""
+src/features/native.fea together with the generated ligature rules (native.py)."""
 import json
 import re
 from pathlib import Path
