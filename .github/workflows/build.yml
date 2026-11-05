@@ -1,0 +1,35 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Install fontforge and harfbuzz
+        run: sudo apt-get update && sudo apt-get install -y fontforge python3-fontforge libharfbuzz-bin
+      - name: Build
+        run: make fonts
+      - name: Check
+        run: make check
+      - name: Package
+        run: zip -r hack-1337.zip ttf otf woff woff2 LICENSE OFL.txt README.md
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hack-1337
+          path: hack-1337.zip
+      - name: Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" hack-1337.zip --title "Hack 1337 $GITHUB_REF_NAME" --notes-file CHANGELOG.md
