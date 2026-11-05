@@ -1,0 +1,25 @@
+# Hack 1337 native OpenType features.
+#
+# This file is compiled together with the ligatures generated from JetBrains Mono
+# (scripts/ligaturize.py). Lookups defined here come first in the lookup list, so they run
+# before the JetBrains Mono `calt` rules and can switch them off.
+#
+# Template syntax (resolved by scripts/features.py before compiling):
+#   $u003C   the glyph for code point U+003C in the font being built
+# Glyph names from src/features/glyphs.json can be used directly (escaped with "\").
+
+# ss01 — plain comparison operators: no ligatures for <= >= == != (and sequences built on them,
+# such as === !== <=> ==>). Each operator character followed by "=" is swapped for a look-alike
+# glyph that the ligature rules don't match.
+lookup ss01_plain_comparisons {
+    sub $u003C' $u003D by \less.ss01;
+    sub $u003E' $u003D by \greater.ss01;
+    sub $u0021' $u003D by \exclam.ss01;
+    sub $u003D' $u003D by \equal.ss01;
+    sub [\less.ss01 \greater.ss01 \exclam.ss01 \equal.ss01] $u003D' by \equal.ss01;
+} ss01_plain_comparisons;
+
+feature ss01 {
+    featureNames { name "Plain comparison operators"; };
+    lookup ss01_plain_comparisons;
+} ss01;
