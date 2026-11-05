@@ -3,13 +3,14 @@
 ## 2.0.0
 
 - Reproducible build from pinned upstreams (`make fonts`), documented in `docs/BUILDING.md`.
-- Ligatures: switched from Fira Code 3.1 (124) to JetBrains Mono 2.304 (150), copied by our own
-  fontTools script. New: `&&` `&&&` `&=` `|->` `|=>` `<-|` `<==>` `<=|` `/**` `//=` `;;;` `???`
-  `{{` `}}` `{{--` `--}}` `{!!` `!!}` `{!--` `<#--` `<:<` `<<~` `#:` `:<` `:?` `:?>` `=:` `>:` `>]`
-  `@_` `[<` `||-`. Removed (Fira-only): `www` `**` `%%` `.-` `~=` `..=`.
-- Native ligatures: all 154 ligature glyphs are drawn from Hack's own strokes
-  (`src/ligatures/recipes.py`), so they match Hack's weight in every style. JetBrains Mono now only
-  supplies the substitution rules; Fira Code's `~=` and `..=` are back.
+- Ligatures: 152 instead of 124 (the copied Fira Code 3.1 set). The set follows JetBrains Mono's,
+  plus Fira's `~=` and `..=`. New: `&&` `&&&` `&=` `|->` `|=>` `<-|` `<==>` `<=|` `/**` `//=`
+  `;;;` `???` `{{` `}}` `{{--` `--}}` `{!!` `!!}` `{!--` `<#--` `<:<` `<<~` `#:` `:<` `:?` `:?>`
+  `=:` `>:` `>]` `@_` `[<` `||-`. Removed: `www` `**` `%%` `.-`.
+- Native ligatures: every ligature glyph is drawn from Hack's own strokes
+  (`src/ligatures/recipes.py`), so they match Hack's weight in every style. The substitution
+  rules are generated too (leftmost-longest, plus exceptions tuned on real code). No glyphs or
+  rules from other fonts are included.
 - New stylistic set `ss01`: plain comparison operators.
 - Nerd Fonts 2.1 → 3.5.1: +9,000 icons (Material Design, Codicons, newer Font Awesome,
   Devicons, Octicons, Seti, Font Logos). The old Material Design range `U+F500–U+FD46` was removed
