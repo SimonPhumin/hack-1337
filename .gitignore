@@ -29,3 +29,9 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+
+# Build
+/build/
+.venv/
+__pycache__/
+.cache/

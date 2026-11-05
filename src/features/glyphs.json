@@ -1,0 +1,7 @@
+{
+  "_comment": "Extra glyphs used by native.fea. Each entry is an alias: a composite that draws the glyph for the given character. Aliases look identical to the original but are not matched by the JetBrains Mono ligature rules.",
+  "less.ss01": "<",
+  "greater.ss01": ">",
+  "equal.ss01": "=",
+  "exclam.ss01": "!"
+}
