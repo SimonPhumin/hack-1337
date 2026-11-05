@@ -1,0 +1,4 @@
+# Lines from tests/code-samples.txt where Hack 1337 deliberately forms different ligatures
+# than JetBrains Mono. Format: the sample line, a tab, the reason.
+let r = 1..=10; let s = 0..n; let t = &v[..];	Hack 1337 adds Fira Code's '..=' (Rust inclusive range)
+x ~= y; a ~> b; c <~ d; e ~~> f	Hack 1337 adds Fira Code's '~='

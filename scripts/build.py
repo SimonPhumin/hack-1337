@@ -3,8 +3,7 @@
   stock Hack 3.003 TTF
     -> prepare.py      Hack 1337 line metrics
     -> font-patcher    Nerd Fonts (complete, single-width icons)
-    -> ligaturize.py   JetBrains Mono ligature glyphs + generated feature code
-    -> native.py       native ligatures from src/ligatures/recipes.py (replace JBM glyphs / add new)
+    -> native.py       ligature glyphs and rules from src/ligatures/recipes.py
     -> features.py     src/features/native.fea compiled together with the generated code
     -> finalize.py     names, metrics, monospace check
     -> export.py       ttf/ otf/ woff/ woff2/
@@ -25,7 +24,6 @@ import native
 from config import BUILD, CACHE, FAMILY, ROOT, STYLES
 from fetch import UPSTREAMS, fetch
 from finalize import finalize
-from ligaturize import ligaturize
 from prepare import prepare
 
 OUT_DIRS = {ext: ROOT / ext for ext in ("ttf", "otf", "woff", "woff2")}
@@ -52,16 +50,14 @@ def build_style(style: str) -> str:
     work = BUILD / "work" / style.replace(" ", "")
     work.mkdir(parents=True, exist_ok=True)
     stock = CACHE / "hack" / "ttf" / spec["hack"]
-    jbm = CACHE / "jetbrains-mono" / "fonts" / "ttf" / spec["jbm"]
 
     prepared = work / "1-prepared.ttf"
     prepare(str(stock), str(prepared))
     patched = nerd_font_patch(prepared, work / "2-nerd-font")
 
     font = TTFont(patched)
-    generated = ligaturize(font, TTFont(jbm))
-    native_fea, _ = native.build(font)
-    fea = features.apply(font, native_fea + "\n" + generated)
+    ligature_fea, _ = native.build(font)
+    fea = features.apply(font, ligature_fea)
     (work / "features.fea").write_text(fea)
 
     os2 = TTFont(stock)["OS/2"]

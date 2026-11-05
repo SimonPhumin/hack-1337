@@ -20,43 +20,21 @@ sha256 checksums are pinned in [`scripts/config.py`](../scripts/config.py).
 | --- | --- | --- |
 | 1 | `prepare.py` | Takes stock **Hack 3.003** and applies the Hack 1337 line metrics (see below). |
 | 2 | Nerd Fonts `font-patcher` (run by fontforge) | Adds every **Nerd Fonts 3.5.1** icon set as single-width glyphs (`--complete --mono --metrics HHEA`). Icons and Powerline separators are fitted to the 1337 cell height. |
-| 3 | `ligaturize.py` | Copies the **JetBrains Mono 2.304** ligatures (details below). |
-| 3b | `native.py` | Builds the native ligatures from `src/ligatures/recipes.py`. Each one replaces the JetBrains Mono glyph of the same name, or adds a new ligature with its own rules. |
-| 4 | `features.py` | Compiles `src/features/native.fea` together with the generated ligature code. |
+| 3 | `native.py` | Draws the ligatures from `src/ligatures/recipes.py` and generates their substitution rules. |
+| 4 | `features.py` | Compiles `src/features/native.fea` (stylistic sets) together with the ligature rules. |
 | 5 | `finalize.py` | Sets names, version and license strings, restores the Windows metrics, and checks that every glyph has the same advance width. |
 | 6 | `export.py` | Writes `.otf` (CFF outlines), `.woff` and `.woff2` from the `.ttf`. |
 
-The build scripts only use [fontTools](https://github.com/fonttools/fonttools) and the official
-Nerd Fonts patcher. No third-party ligaturizer code is involved, so the scripts can be MIT
-licensed.
+The build only uses [fontTools](https://github.com/fonttools/fonttools),
+[skia-pathops](https://github.com/fonttools/skia-pathops) and the official Nerd Fonts patcher.
+Nothing from another font is built in: the ligatures are drawn from Hack's own strokes.
 
-### How the ligatures are copied (`scripts/ligaturize.py`)
+## Ligatures (`src/ligatures/recipes.py`)
 
-JetBrains Mono implements ligatures in its `calt` feature as chains of contextual rules. For
-`->`, the `-` is replaced by an empty spacer glyph (`SPC`) and the `>` by a one-cell glyph
-(`hyphen_greater.liga`) whose drawing extends left over the spacer. The script:
+### Drawing
 
-1. Walks every `calt` lookup of JetBrains Mono (and the lookups they call) and rewrites them as
-   OpenType feature code. Characters are mapped to Hack's glyph for the same code point.
-   Substitutions that would bring in JetBrains Mono letterforms (`colon.case`, `germandbls.calt`)
-   are dropped, so Hack keeps its own characters.
-2. Copies the 153 ligature and spacer glyphs. Each one is scaled from JetBrains Mono's 600/1000
-   grid to Hack's 1233/2048 grid, shifted so JetBrains Mono's math axis (the centre of `-` and
-   `=`) sits on Hack's, and re-slanted from 9° to 11° for italics.
-3. Matches stroke weights. Scaled to Hack's size, JetBrains Mono **Regular** has exactly Hack
-   Regular's 164-unit hyphen. Hack **Bold** (291) is closest to JetBrains Mono **ExtraBold** (287).
-   The mapping is in `STYLES` in `config.py`.
-
-The generated feature code for each style is kept at `build/work/<Style>/features.fea`.
-`make check` confirms that every JetBrains Mono ligature is reproduced. It also shapes 20,000
-random strings with both fonts to confirm the ligatures behave the same, including the cases
-where JetBrains Mono deliberately leaves characters alone (e.g. `<-1`).
-
-### Native ligatures (`src/ligatures/recipes.py`)
-
-The goal is to replace every JetBrains Mono ligature glyph with one drawn from Hack's own strokes.
-Each recipe is a small Python function that gets a `Kit` for the style being built and returns
-the outline, drawn across the ligature's cells:
+Each ligature is a small Python recipe. It gets a `Kit` for the style being built and returns the
+outline, drawn across the ligature's cells:
 
 ```python
 @ligature("==")
@@ -70,34 +48,56 @@ def _(k):
 - **Boolean operations** (skia-pathops) merge overlapping parts into clean outlines.
 - **Tightened sequences** (`TIGHT`): Hack's glyphs moved closer (`## :: {{ <$> ?:` …), never so
   close that they collide in Bold; `*`, `:` and `.` can be centred on the math axis.
-- **Arrows** come from one parametric builder: a shaft (`-` or `=`) plus an end piece on each
-  side (`head`, `head2`, `tail`, `tail2`, `bar`, `bar2`) and a shaft (`-`, `=` or `~`, a sine wave
-  with the height and weight of Hack's `~`). The `ARROWS` table maps every arrow sequence to
-  its spec, e.g. `">->": ("-", "tail", "head")`. Heads are drawn by `_head()`: a mitred chevron
-  with Hack's stroke, as tall as Hack's `>` but steeper (`HEAD_ANGLE`). Hack's own `>` is too flat
-  to work as an arrowhead.
+- **Arrows** come from one parametric builder: a shaft (`-`, `=`, or `~`, a sine wave with the
+  height and weight of Hack's `~`) plus an end piece on each side (`head`, `head2`, `tail`,
+  `tail2`, `bar`, `bar2`). The `ARROWS` table maps every arrow sequence to its spec, e.g.
+  `">->": ("-", "tail", "head")`. Heads are drawn by `_head()`: a mitred chevron with Hack's
+  stroke, as tall as Hack's `>` but steeper (`HEAD_ANGLE`). Hack's own `>` is too flat to work as
+  an arrowhead.
 - **Italics:** Hack Italic keeps most operators upright (`= < > | . ~ ≤ ≥ ≠ ≡`), so recipes use
   the italic glyphs as they are. Only the arrow shafts get slanted ends, matching the italic `-`.
-- A recipe whose glyph name JetBrains Mono doesn't have (e.g. `~=`, `..=`) becomes a new
-  ligature. `native.py` writes its substitution rules, which run before the JetBrains Mono rules.
 
-`make check` reports progress ("native ligature glyphs: 154/154"). `make previews` renders the result.
-When every glyph is native, the remaining step is to replace the JetBrains Mono-derived rules
-with rules generated from our own sequence list, and then drop JetBrains Mono.
+Like most programming fonts, a ligature keeps one glyph per character: `->` becomes an empty
+spacer (`LIG`) followed by one glyph that is drawn leftwards over the spacer. Cursor movement and
+selection keep working character by character.
 
-### Native features (`src/features/`)
+### When ligatures form
 
-`native.fea` holds Hack 1337's own OpenType code. Its lookups are placed *before* the JetBrains
-Mono ones, so they can switch ligatures off. Two conveniences:
+`native.py` generates the rules from the recipes (see its docstring):
+
+- **Leftmost-longest**, like a tokenizer: one lookup scans the line left to right and at each
+  position forms the longest ligature that starts there. `<=<=` is `<=` `<=`; `->=>` is `->` `=>`.
+- **Not inside runs:** by default a ligature doesn't form inside a longer run of its first or
+  last character, so `====` stays plain. `plain_runs=False` turns that off (e.g. `}}}}` pairs up).
+- **Exceptions**, written at the bottom of `recipes.py` as `BEFORE⟨SEQUENCE⟩AFTER` patterns:
+  - `GIVE_WAY`: when two ligatures overlap, which one wins (`#=` gives way in Ruby's `#=>`).
+  - Context rules: no ligature where it would mislead, e.g. `<-` in time zones (`<-04>`), `/**`
+    in globs (`/**/*.py`), comparisons in regex lookarounds (`(?<=`).
+  - `only=`: ligatures that form only in a given context (`/\` in ASCII art).
+
+JetBrains Mono's rules are the behavioural reference, because they're well tested. `make check`
+shapes the real-world snippets in `tests/code-samples.txt` with both fonts. The ligatures must
+form in exactly the same places, except for the lines in `tests/accepted-differences.txt`
+(each with a reason). JetBrains Mono is downloaded for this test only.
+
+Two dev tools help when changing rules (both compare with JetBrains Mono):
+
+- `uv run python scripts/corpusdiff.py PATH…` shapes every line of real source code under the given
+  directories and lists the differences, most frequent first. On a million lines of Python,
+  Ruby, C, shell and JS/TS, about 10 lines differ, all deliberately.
+- `uv run python scripts/rulediff.py` checks every 2–4 character combination of operator
+  characters. The remaining differences are combinations that don't occur in real code.
+
+### Stylistic sets (`src/features/`)
+
+`native.fea` holds Hack 1337's own OpenType code. Its lookups run *before* the ligature rules, so
+they can switch ligatures off. Two conveniences:
 
 - `$u003C` in `native.fea` stands for "the glyph for U+003C in this font". The Nerd Fonts patcher
   renames glyphs, so don't hard-code names.
 - `glyphs.json` declares extra glyphs as aliases of existing characters (e.g. `less.ss01` looks
   like `<`). The ligature rules don't match aliases, which is how `ss01` keeps comparison
   operators plain.
-
-To add a ligature drawn from Hack's own glyphs, add the glyph (for example as a composite of
-existing glyphs in `features.py`) and a rule in `native.fea`. Rules in `native.fea` run first.
 
 ### Line metrics
 
@@ -109,8 +109,8 @@ accents are never clipped. Change `LINE_METRICS` in `config.py` to adjust.
 ## Updating upstreams
 
 Bump the version, URL and sha256 in `scripts/config.py`, then run `make fonts check`. To get a
-checksum, run `shasum -a 256` on the downloaded zip. If JetBrains Mono adds ligatures,
-`ligaturize.py` picks them up automatically. `make check` reports any rule it couldn't translate.
+checksum, run `shasum -a 256` on the downloaded zip. If a new JetBrains Mono release adds
+ligatures, `make check` lists them as missing; add a recipe for each.
 
 ## History: how 1.x was made
 
@@ -123,6 +123,7 @@ Hack 1337 1.x (2021) was made by hand, with no build scripts:
    overlap, so powerlevel10k segments show no seams.
 
 2.0 rebuilds the same idea from scratch. It keeps the line metrics. It drops the hand-drawn
-Powerline glyphs, because Nerd Fonts 3 fits them to the cell itself. It replaces Fira Code 3.1
-with JetBrains Mono 2.304, which gains 32 ligatures (e.g. `&&` `|->` `<==>` `/**` `;;;` `{{` `}}`)
-and loses 6 Fira-only ones (`www` `**` `%%` `.-` `~=` `..=`).
+Powerline glyphs, because Nerd Fonts 3 fits them to the cell itself. It replaces the copied
+Fira Code ligatures with ones drawn from Hack's own strokes. The set follows JetBrains Mono's
+(32 more than 1.x, e.g. `&&` `|->` `<==>` `/**` `;;;` `{{` `}}`) plus Fira's `~=` and `..=`.
+Four 1.x ligatures are gone: `www` `**` `%%` `.-`.

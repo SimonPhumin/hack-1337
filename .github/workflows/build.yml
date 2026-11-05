@@ -23,7 +23,7 @@ jobs:
       - name: Check
         run: make check
       - name: Package
-        run: zip -r hack-1337.zip ttf otf woff woff2 LICENSE OFL.txt README.md
+        run: zip -r hack-1337.zip ttf otf woff woff2 LICENSE README.md
       - uses: actions/upload-artifact@v4
         with:
           name: hack-1337
