@@ -118,7 +118,7 @@ Hack 1337 1.x (2021) was made by hand, with no build scripts:
 
 1. Started from **Hack Nerd Font Mono** as released by Nerd Fonts **2.1**.
 2. Added Fira Code **3.1** ligatures (124) with [Ligaturizer](https://github.com/ToxicFrog/Ligaturizer).
-3. Edited in **FontLab 7**: set the `hhea`/typo metrics to 1556/−492 (line gap 0), and redrew the
+3. Set the `hhea`/typo metrics to 1556/−492 (line gap 0), and redrew the
    Powerline glyphs `U+E0A0–E0A2` and `U+E0B0–E0B3` to fit that line height with a little
    overlap, so powerlevel10k segments show no seams.
 
