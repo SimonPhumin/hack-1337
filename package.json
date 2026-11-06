@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "description": "Syntax highlighting for the Hack 1337 preview images (make previews)",
+  "type": "module",
+  "devDependencies": {
+    "shiki": "4.6.0"
+  }
+}

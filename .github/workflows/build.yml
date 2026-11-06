@@ -16,8 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
-      - name: Install fontforge and harfbuzz
-        run: sudo apt-get update && sudo apt-get install -y fontforge python3-fontforge libharfbuzz-bin
+      - name: Install fontforge
+        run: sudo apt-get update && sudo apt-get install -y fontforge python3-fontforge
       - name: Build
         run: make fonts
       - name: Check

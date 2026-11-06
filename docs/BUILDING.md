@@ -3,10 +3,10 @@
 ## Quick start
 
 ```sh
-brew install uv fontforge harfbuzz   # macOS; on Debian/Ubuntu: apt install fontforge python3-fontforge libharfbuzz-bin, plus uv
+brew install uv fontforge node   # macOS; on Debian/Ubuntu: apt install fontforge python3-fontforge nodejs npm, plus uv
 make fonts      # download pinned upstreams, build ttf/ otf/ woff/ woff2/   (~1 min)
 make check      # verify ligatures, metrics, icon coverage; compare with the committed fonts
-make previews   # re-render preview/*.png and docs/ligatures.md
+make previews   # re-render preview/*.png and docs/ligatures.md (needs node)
 ```
 
 Everything downloaded or generated goes into `build/` (git-ignored). Upstream versions and their
@@ -105,6 +105,19 @@ Hack 1337 has a tighter line height than stock Hack. In `hhea` and `OS/2` typo, 
 are 1556/−492 with no line gap, which is exactly 1 em. macOS and most Linux apps use these
 values. `usWinAscent`/`usWinDescent` keep Hack's 1901/483, so Windows spacing is unchanged and
 accents are never clipped. Change `LINE_METRICS` in `config.py` to adjust.
+
+## Previews (`make previews`)
+
+`scripts/preview.py` renders `preview/code.png` (and `code-no-ligatures.png` for comparison) from
+the files in `preview/samples/`, plus `preview/ligatures.png` and `docs/ligatures.md`:
+
+- **Highlighting:** [Shiki](https://shiki.style) (`scripts/highlight.mjs`, pinned in
+  `package.json`) with the Tokyo Night theme, the code theme used in Conductor and many editors.
+  Change `THEME` in `preview.py` to use another Shiki theme.
+- **Rendering:** each line is shaped with HarfBuzz like an editor does: one run per font style, so
+  italic and bold tokens use Hack 1337 Italic and Bold. FreeType rasterizes the glyphs.
+- Images are drawn at 2x for high-density screens. To show other code, add a file to
+  `preview/samples/` and to `SAMPLES` in `preview.py`.
 
 ## Updating upstreams
 

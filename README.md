@@ -13,6 +13,12 @@ My personal edit of the legendary [Hack](https://github.com/source-foundry/Hack)
 | Styles | Regular, Italic, Bold, Bold Italic |
 | Formats | `ttf/`, `otf/`, `woff/`, `woff2/` |
 
+## Install
+
+Download `hack-1337.zip` from the [latest release](https://github.com/SimonPhumin/hack-1337/releases/latest)
+and install the fonts from `ttf/` (on macOS: open each file and click *Install*). Then select
+**Hack 1337** in your editor or terminal.
+
 ## Ligatures
 
 ![](preview/ligatures.png)
