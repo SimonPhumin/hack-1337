@@ -12,3 +12,10 @@ dependencies = [
 
 [tool.uv]
 package = false
+
+[dependency-groups]
+# make previews
+previews = [
+    "freetype-py>=2.5",
+    "pillow>=11",
+]
